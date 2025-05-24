@@ -6,8 +6,9 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CourseProvider } from './context/CourseContext';
 
-// Landing Page
+// Landing and Login Pages
 import LandingPage from './pages/landing/LandingPage';
+import LoginPage from './pages/landing/LoginPage';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -47,6 +48,11 @@ function App() {
           <Routes>
             {/* Landing Page */}
             <Route path="/" element={<LandingPage />} />
+            
+            {/* Login Routes */}
+            <Route path="/login/student" element={<LoginPage />} />
+            <Route path="/login/faculty" element={<LoginPage />} />
+            <Route path="/login/admin" element={<LoginPage />} />
 
             {/* Student Routes */}
             <Route

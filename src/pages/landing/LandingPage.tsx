@@ -1,27 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Users, UserCog } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
-
-  const handleRoleSelect = async (role: 'student' | 'faculty' | 'admin') => {
-    // Mock credentials for each role
-    const credentials = {
-      student: { email: 'student@example.com', password: 'password' },
-      faculty: { email: 'faculty@example.com', password: 'password' },
-      admin: { email: 'admin@example.com', password: 'password' }
-    };
-
-    try {
-      await login(credentials[role].email, credentials[role].password);
-      navigate(`/${role}`);
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
@@ -43,7 +25,7 @@ const LandingPage: React.FC = () => {
           {/* Student Card */}
           <div 
             className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 cursor-pointer border border-gray-200 hover:border-blue-500"
-            onClick={() => handleRoleSelect('student')}
+            onClick={() => navigate('/login/student')}
           >
             <div className="p-8 flex flex-col items-center">
               <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4">
@@ -55,14 +37,14 @@ const LandingPage: React.FC = () => {
               </p>
             </div>
             <div className="bg-blue-600 py-3 text-center">
-              <span className="text-white font-medium">Enter as Student</span>
+              <span className="text-white font-medium">Login as Student</span>
             </div>
           </div>
 
           {/* Faculty Card */}
           <div 
             className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 cursor-pointer border border-gray-200 hover:border-green-500"
-            onClick={() => handleRoleSelect('faculty')}
+            onClick={() => navigate('/login/faculty')}
           >
             <div className="p-8 flex flex-col items-center">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
@@ -74,14 +56,14 @@ const LandingPage: React.FC = () => {
               </p>
             </div>
             <div className="bg-green-600 py-3 text-center">
-              <span className="text-white font-medium">Enter as Faculty</span>
+              <span className="text-white font-medium">Login as Faculty</span>
             </div>
           </div>
 
           {/* Admin Card */}
           <div 
             className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 cursor-pointer border border-gray-200 hover:border-purple-500"
-            onClick={() => handleRoleSelect('admin')}
+            onClick={() => navigate('/login/admin')}
           >
             <div className="p-8 flex flex-col items-center">
               <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mb-4">
@@ -93,7 +75,7 @@ const LandingPage: React.FC = () => {
               </p>
             </div>
             <div className="bg-purple-600 py-3 text-center">
-              <span className="text-white font-medium">Enter as Admin</span>
+              <span className="text-white font-medium">Login as Admin</span>
             </div>
           </div>
         </div>
