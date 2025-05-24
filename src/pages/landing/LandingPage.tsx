@@ -7,9 +7,20 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleRoleSelect = (role: 'student' | 'faculty' | 'admin') => {
-    login(role);
-    navigate(`/${role}`);
+  const handleRoleSelect = async (role: 'student' | 'faculty' | 'admin') => {
+    // Mock credentials for each role
+    const credentials = {
+      student: { email: 'student@example.com', password: 'password' },
+      faculty: { email: 'faculty@example.com', password: 'password' },
+      admin: { email: 'admin@example.com', password: 'password' }
+    };
+
+    try {
+      await login(credentials[role].email, credentials[role].password);
+      navigate(`/${role}`);
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
   return (
