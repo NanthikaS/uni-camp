@@ -1,12 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { User, Student, Faculty, Admin } from '../types';
 import { mockStudents, mockFaculty, mockAdmin } from '../data/mockData';
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 interface AuthContextType {
   currentUser: User | Student | Faculty | Admin | null;
@@ -48,18 +42,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const { data: credentials, error } = await supabase
-        .from('credentials')
-        .select('*')
-        .eq('email', email)
-        .single();
+      // Mock credentials check
+      const mockCredentials = [
+        { email: 'student@example.com', password: 'password', role: 'student', user_id: '1' },
+        { email: 'faculty@example.com', password: 'password', role: 'faculty', user_id: '1' },
+        { email: 'admin@example.com', password: 'password', role: 'admin', user_id: '1' }
+      ];
 
-      if (error || !credentials) {
-        throw new Error('Invalid credentials');
-      }
+      const credentials = mockCredentials.find(c => c.email === email);
 
-      // In a real app, you would verify the password hash here
-      if (credentials.password !== password) {
+      if (!credentials || credentials.password !== password) {
         throw new Error('Invalid credentials');
       }
 
