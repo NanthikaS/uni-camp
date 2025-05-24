@@ -1,10 +1,16 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { User, Student, Faculty, Admin } from '../types';
 import { mockStudents, mockFaculty, mockAdmin } from '../data/mockData';
 
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
+
 interface AuthContextType {
   currentUser: User | Student | Faculty | Admin | null;
-  login: (role: 'student' | 'faculty' | 'admin', userId?: string) => void;
+  login: (email: string, password: string) => Promise<{ role: string; userId: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   updateUser: (userData: Partial<User | Student | Faculty | Admin>) => void;
@@ -12,7 +18,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   currentUser: null,
-  login: () => {},
+  login: async () => ({ role: '', userId: '' }),
   logout: () => {},
   isAuthenticated: false,
   updateUser: () => {},
@@ -24,7 +30,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | Student | Faculty | Admin | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // Load user from localStorage on component mount
   useEffect(() => {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
@@ -33,7 +38,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Save user to localStorage when it changes
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -42,21 +46,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentUser]);
 
-  const login = (role: 'student' | 'faculty' | 'admin', userId?: string) => {
-    let user: User | Student | Faculty | Admin | null = null;
+  const login = async (email: string, password: string) => {
+    try {
+      const { data: credentials, error } = await supabase
+        .from('credentials')
+        .select('*')
+        .eq('email', email)
+        .single();
 
-    // For demo purposes, select the first user of the specified role
-    if (role === 'student') {
-      user = userId ? mockStudents.find(s => s.id === userId) || mockStudents[0] : mockStudents[0];
-    } else if (role === 'faculty') {
-      user = userId ? mockFaculty.find(f => f.id === userId) || mockFaculty[0] : mockFaculty[0];
-    } else if (role === 'admin') {
-      user = mockAdmin;
-    }
+      if (error || !credentials) {
+        throw new Error('Invalid credentials');
+      }
 
-    if (user) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
+      // In a real app, you would verify the password hash here
+      if (credentials.password !== password) {
+        throw new Error('Invalid credentials');
+      }
+
+      let user: User | Student | Faculty | Admin | null = null;
+
+      if (credentials.role === 'student') {
+        user = mockStudents.find(s => s.id === credentials.user_id) || mockStudents[0];
+      } else if (credentials.role === 'faculty') {
+        user = mockFaculty.find(f => f.id === credentials.user_id) || mockFaculty[0];
+      } else if (credentials.role === 'admin') {
+        user = mockAdmin;
+      }
+
+      if (user) {
+        setCurrentUser(user);
+        setIsAuthenticated(true);
+        return { role: credentials.role, userId: credentials.user_id };
+      }
+
+      throw new Error('User not found');
+    } catch (error) {
+      throw new Error('Invalid credentials');
     }
   };
 
